@@ -36,13 +36,17 @@ import solarizedDarkCSS from '!!file-loader?name=files/code_themes/[hash].[ext]!
 // eslint-disable-line import/order
 import solarizedLightCSS from '!!file-loader?name=files/code_themes/[hash].[ext]!highlight.js/styles/solarized-light.css'; // eslint-disable-line import/order
 
-export const PluginSettings = {
+export const SettingsTypes = {
     TYPE_TEXT: 'text',
+    TYPE_NUMBER: 'number',
     TYPE_BOOL: 'bool',
     TYPE_RADIO: 'radio',
+    TYPE_BANNER: 'banner',
     TYPE_DROPDOWN: 'dropdown',
     TYPE_GENERATED: 'generated',
     TYPE_USERNAME: 'username',
+    TYPE_BUTTON: 'button',
+    TYPE_LANGUAGE: 'language',
 };
 
 export const Preferences = {
@@ -424,7 +428,6 @@ export const ErrorBarTypes = {
     LICENSE_PAST_GRACE: 'error_bar.past_grace',
     PREVIEW_MODE: 'error_bar.preview_mode',
     SITE_URL: 'error_bar.site_url',
-    APIV3_ENABLED: 'error_bar.apiv3_enabled',
     WEBSOCKET_PORT_ERROR: 'channel_loader.socketError',
 };
 
@@ -476,7 +479,7 @@ export const GroupUnreadChannels = {
 };
 
 export const Constants = {
-    PluginSettings,
+    SettingsTypes,
     Preferences,
     SocketEvents,
     ActionTypes,
@@ -551,8 +554,6 @@ export const Constants = {
     MAX_FILENAME_LENGTH: 35,
     THUMBNAIL_WIDTH: 128,
     THUMBNAIL_HEIGHT: 100,
-    PROFILE_WIDTH: 128,
-    PROFILE_HEIGHT: 128,
     WEB_VIDEO_WIDTH: 640,
     WEB_VIDEO_HEIGHT: 480,
     MOBILE_VIDEO_WIDTH: 480,
