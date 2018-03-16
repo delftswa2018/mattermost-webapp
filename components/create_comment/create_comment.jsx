@@ -294,14 +294,15 @@ export default class CreateComment extends React.PureComponent {
             });
         } catch (err) {
             this.setState({serverError: err.message});
+            return;
         }
 
         this.setState({draft: {...this.props.draft, uploadsInProgress: []}});
     }
 
     commentMsgKeyPress = (e) => {
-        if (!UserAgent.isMobile() && ((this.props.ctrlSend && Utils.cmdOrCtrlPressed(e)) || !this.props.ctrlSend)) {
-            if (e.which === KeyCodes.ENTER && !e.shiftKey && !e.altKey) {
+        if (!UserAgent.isMobile() && ((this.props.ctrlSend && (e.ctrlKey || e.metaKey)) || !this.props.ctrlSend)) {
+            if (Utils.isKeyPressed(e, KeyCodes.ENTER) && !e.shiftKey && !e.altKey) {
                 e.preventDefault();
                 this.refs.textbox.blur();
                 this.handleSubmit(e);
@@ -330,7 +331,7 @@ export default class CreateComment extends React.PureComponent {
     }
 
     handleKeyDown = (e) => {
-        if (this.props.ctrlSend && e.keyCode === KeyCodes.ENTER && Utils.cmdOrCtrlPressed(e)) {
+        if (this.props.ctrlSend && Utils.isKeyPressed(e, Constants.KeyCodes.ENTER) && (e.ctrlKey || e.metaKey)) {
             this.commentMsgKeyPress(e);
             return;
         }
@@ -338,16 +339,19 @@ export default class CreateComment extends React.PureComponent {
         const {draft} = this.state;
         const {message} = draft;
 
-        if (!Utils.cmdOrCtrlPressed(e) && !e.altKey && !e.shiftKey && e.keyCode === KeyCodes.UP && message === '') {
+        if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && Utils.isKeyPressed(e, Constants.KeyCodes.UP) && message === '') {
             e.preventDefault();
+            if (this.refs.textbox) {
+                this.refs.textbox.blur();
+            }
             this.props.onEditLatestPost();
         }
 
-        if ((Utils.cmdOrCtrlPressed(e)) && !e.altKey && !e.shiftKey) {
-            if (e.keyCode === Constants.KeyCodes.UP) {
+        if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey) {
+            if (Utils.isKeyPressed(e, Constants.KeyCodes.UP)) {
                 e.preventDefault();
                 this.props.onMoveHistoryIndexBack();
-            } else if (e.keyCode === Constants.KeyCodes.DOWN) {
+            } else if (Utils.isKeyPressed(e, Constants.KeyCodes.DOWN)) {
                 e.preventDefault();
                 this.props.onMoveHistoryIndexForward();
             }
@@ -427,7 +431,7 @@ export default class CreateComment extends React.PureComponent {
             if (index !== -1) {
                 uploadsInProgress.splice(index, 1);
 
-                if (this.refs.fileUpload) {
+                if (this.refs.fileUpload && this.refs.fileUpload.getWrappedInstance()) {
                     this.refs.fileUpload.getWrappedInstance().cancelUpload(id);
                 }
             }

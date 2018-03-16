@@ -62,7 +62,7 @@ export function cmdOrCtrlPressed(e, allowAlt = false) {
 
 export function isKeyPressed(event, key) {
     if (typeof event.key !== 'undefined' && event.key !== 'Unidentified' && event.key !== 'Dead') {
-        return event.key === key[0];
+        return event.key === key[0] || event.key === key[0].toUpperCase();
     }
     return event.keyCode === key[1];
 }
@@ -242,7 +242,20 @@ export function getTimestamp() {
     return Date.now();
 }
 
-// extracts links not styled by Markdown
+// Replaces all occurrences of a pattern
+export function loopReplacePattern(text, pattern, replacement) {
+    let result = text;
+
+    let match = pattern.exec(result);
+    while (match) {
+        result = result.replace(pattern, replacement);
+        match = pattern.exec(result);
+    }
+
+    return result;
+}
+
+// extracts the first link from the text
 export function extractFirstLink(text) {
     const pattern = /(^|[\s\n]|<br\/?>)((?:https?|ftp):\/\/[-A-Z0-9+\u0026\u2019@#/%?=()~_|!:,.;]*[-A-Z0-9+\u0026@#/%=~()_|])/i;
     let inText = text;
@@ -252,6 +265,10 @@ export function extractFirstLink(text) {
 
     // strip out inline markdown images
     inText = inText.replace(/!\[[^\]]*]\([^)]*\)/g, '');
+
+    // remove markdown *, ~~ and _ characters
+    inText = loopReplacePattern(inText, /(\*|~~)(.*?)\1/, '$2');
+    inText = loopReplacePattern(inText, /([\s\n]|^)_(.*?)_([\s\n]|$)/, '$1$2$3');
 
     const match = pattern.exec(inText);
     if (match) {
@@ -317,7 +334,7 @@ export function areObjectsEqual(x, y) {
         return false;
     }
 
-    // Quick checking of one object beeing a subset of another.
+    // Quick checking of one object being a subset of another.
     for (p in y) {
         if (y.hasOwnProperty(p) !== x.hasOwnProperty(p)) {
             return false;
@@ -625,15 +642,15 @@ export function applyTheme(theme) {
     const mentionBg = theme.mentionBg || theme.mentionBj;
     if (mentionBg) {
         changeCss('.sidebar--left .nav-pills__unread-indicator', 'background:' + mentionBg);
-        changeCss('.app__body .sidebar--left .badge', 'background:' + mentionBg);
-        changeCss('.multi-teams .team-sidebar .badge', 'background:' + mentionBg);
+        changeCss('.app__body .sidebar--left .badge, .app__body .list-group-item.active > .badge, .nav-pills > .active > a > .badge', 'background:' + mentionBg);
+        changeCss('.multi-teams .team-sidebar .badge, .app__body .list-group-item.active > .badge, .nav-pills > .active > a > .badge', 'background:' + mentionBg);
     }
 
     if (theme.mentionColor) {
         changeCss('.sidebar--left .nav-pills__unread-indicator svg', 'fill:' + theme.mentionColor);
         changeCss('.app__body .sidebar--left .nav-pills__unread-indicator', 'color:' + theme.mentionColor);
-        changeCss('.app__body .sidebar--left .badge', 'color:' + theme.mentionColor);
-        changeCss('.app__body .multi-teams .team-sidebar .badge', 'color:' + theme.mentionColor);
+        changeCss('.app__body .sidebar--left .badge, .app__body .list-group-item.active > .badge, .nav-pills > .active > a > .badge', 'color:' + theme.mentionColor);
+        changeCss('.app__body .multi-teams .team-sidebar .badge, .app__body .list-group-item.active > .badge, .nav-pills > .active > a > .badge', 'color:' + theme.mentionColor);
     }
 
     if (theme.centerChannelBg) {
@@ -1100,9 +1117,9 @@ export function displayUsernameForUser(user) {
     if (user) {
         const nameFormat = config.TeammateNameDisplay;
         let name = user.username;
-        if (nameFormat === Constants.TEAMMATE_NAME_DISPLAY.SHOW_NICKNAME_FULLNAME && user.nickname && user.nickname !== '') {
+        if (nameFormat === Constants.TEAMMATE_NAME_DISPLAY.SHOW_NICKNAME_FULLNAME && user.nickname && user.nickname.trim().length > 0) {
             name = user.nickname;
-        } else if ((user.first_name || user.last_name) && (nameFormat === Constants.TEAMMATE_NAME_DISPLAY.SHOW_NICKNAME_FULLNAME || nameFormat === Constants.TEAMMATE_NAME_DISPLAY.SHOW_FULLNAME)) {
+        } else if (((user.first_name && user.first_name.trim().length > 0) || (user.last_name && user.last_name.trim().length > 0)) && (nameFormat === Constants.TEAMMATE_NAME_DISPLAY.SHOW_NICKNAME_FULLNAME || nameFormat === Constants.TEAMMATE_NAME_DISPLAY.SHOW_FULLNAME)) {
             name = getFullName(user);
         }
 
@@ -1182,6 +1199,19 @@ export function imageURLForUser(userIdOrObject) {
         return Constants.TRANSPARENT_PIXEL;
     }
     return Client4.getUsersRoute() + '/' + userIdOrObject.id + '/image?_=' + (userIdOrObject.last_picture_update || 0);
+}
+
+// in contrast to Client4.getTeamIconUrl, for ui logic this function returns null if last_team_icon_update is unset
+export function imageURLForTeam(teamIdOrObject) {
+    if (typeof teamIdOrObject == 'string') {
+        const team = TeamStore.get(teamIdOrObject);
+        if (team) {
+            return imageURLForTeam(team);
+        }
+        return null;
+    }
+
+    return teamIdOrObject.last_team_icon_update ? Client4.getTeamIconUrl(teamIdOrObject.id, teamIdOrObject.last_team_icon_update) : null;
 }
 
 // Converts a file size in bytes into a human-readable string of the form '123MB'.
@@ -1381,16 +1411,16 @@ export function canCreateCustomEmoji(user) {
     return true;
 }
 
-export function getPasswordConfig() {
+export function getPasswordConfig(license, config) {
     return {
-        isEnterprise: global.window.mm_config.BuildEnterpriseReady === 'true',
-        isLicensed: global.window.mm_license.IsLicensed === 'true',
-        isPasswordRequirements: global.window.mm_license.PasswordRequirements === 'true',
-        minimumLength: parseInt(global.window.mm_config.PasswordMinimumLength, 10),
-        requireLowercase: global.window.mm_config.PasswordRequireLowercase === 'true',
-        requireUppercase: global.window.mm_config.PasswordRequireUppercase === 'true',
-        requireNumber: global.window.mm_config.PasswordRequireNumber === 'true',
-        requireSymbol: global.window.mm_config.PasswordRequireSymbol === 'true',
+        isEnterprise: config.BuildEnterpriseReady === 'true',
+        isLicensed: license.IsLicensed === 'true',
+        isPasswordRequirements: license.PasswordRequirements === 'true',
+        minimumLength: parseInt(config.PasswordMinimumLength, 10),
+        requireLowercase: config.PasswordRequireLowercase === 'true',
+        requireUppercase: config.PasswordRequireUppercase === 'true',
+        requireNumber: config.PasswordRequireNumber === 'true',
+        requireSymbol: config.PasswordRequireSymbol === 'true',
     };
 }
 
@@ -1470,13 +1500,10 @@ export function handleFormattedTextClick(e) {
     } else if (linkAttribute) {
         const MIDDLE_MOUSE_BUTTON = 1;
 
-        if (!(e.button === MIDDLE_MOUSE_BUTTON || e.altKey || cmdOrCtrlPressed(e) || e.shiftKey)) {
+        if (!(e.button === MIDDLE_MOUSE_BUTTON || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey)) {
             e.preventDefault();
 
-            const urlparse = document.createElement('a');
-            urlparse.href = linkAttribute.value;
-
-            browserHistory.push(urlparse.pathname);
+            browserHistory.push(linkAttribute.value);
         }
     } else if (channelMentionAttribute) {
         e.preventDefault();
