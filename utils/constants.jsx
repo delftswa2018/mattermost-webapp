@@ -47,6 +47,7 @@ export const SettingsTypes = {
     TYPE_USERNAME: 'username',
     TYPE_BUTTON: 'button',
     TYPE_LANGUAGE: 'language',
+    TYPE_CUSTOM: 'custom',
 };
 
 export const Preferences = {
@@ -199,8 +200,6 @@ export const ActionTypes = keyMirror({
     RECIVED_OPEN_GRAPH_METADATA: null,
 
     SHOW_SEARCH: null,
-
-    USER_TYPING: null,
 
     TOGGLE_ACCOUNT_SETTINGS_MODAL: null,
     TOGGLE_SHORTCUTS_MODAL: null,
@@ -1097,6 +1096,7 @@ export const Constants = {
     DEFAULT_POST_EDIT_TIME_LIMIT: 300,
     MENTION_CHANNELS: 'mention.channels',
     MENTION_MORE_CHANNELS: 'mention.morechannels',
+    MENTION_UNREAD_CHANNELS: 'mention.unread.channels',
     MENTION_MEMBERS: 'mention.members',
     MENTION_NONMEMBERS: 'mention.nonmembers',
     MENTION_SPECIAL: 'mention.special',
