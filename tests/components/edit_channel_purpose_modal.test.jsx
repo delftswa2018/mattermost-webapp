@@ -117,7 +117,7 @@ describe('comoponents/EditChannelPurposeModal', () => {
                 ctrlSend={false}
                 requestStatus={RequestStatus.STARTED}
                 onModalDismissed={jest.fn()}
-                actions={{patchChannel: jest.fn()}}
+                actions={{patchCHannel: jest.fn()}}
             />,
             {disableLifecycleMethods: true}
         );
@@ -146,7 +146,7 @@ describe('comoponents/EditChannelPurposeModal', () => {
                 ctrlSend={false}
                 requestStatus={RequestStatus.STARTED}
                 onModalDismissed={jest.fn()}
-                actions={{patchChannel: jest.fn()}}
+                actions={{patchCHannel: jest.fn()}}
             />,
             {disableLifecycleMethods: true}
         );

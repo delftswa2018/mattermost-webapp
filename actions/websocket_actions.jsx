@@ -4,14 +4,13 @@
 import $ from 'jquery';
 import {batchActions} from 'redux-batched-actions';
 import {ChannelTypes, EmojiTypes, PostTypes, TeamTypes, UserTypes} from 'mattermost-redux/action_types';
-import {WebsocketEvents, General} from 'mattermost-redux/constants';
 import {getChannelAndMyMember, getChannelStats, viewChannel} from 'mattermost-redux/actions/channels';
 import {setServerVersion} from 'mattermost-redux/actions/general';
 import {getPosts, getProfilesAndStatusesForPosts, getCustomEmojiForReaction} from 'mattermost-redux/actions/posts';
 import * as TeamActions from 'mattermost-redux/actions/teams';
-import {getMe, getStatusesByIds, getProfilesByIds} from 'mattermost-redux/actions/users';
+import {getMe} from 'mattermost-redux/actions/users';
 import {Client4} from 'mattermost-redux/client';
-import {getCurrentUser, getCurrentUserId, getStatusForUserId} from 'mattermost-redux/selectors/entities/users';
+import {getCurrentUser} from 'mattermost-redux/selectors/entities/users';
 import {getMyTeams} from 'mattermost-redux/selectors/entities/teams';
 import {getConfig} from 'mattermost-redux/selectors/entities/general';
 
@@ -525,37 +524,10 @@ function handlePreferencesDeletedEvent(msg) {
 }
 
 function handleUserTypingEvent(msg) {
-    const state = getState();
-    const config = getConfig(state);
-    const currentUserId = getCurrentUserId(state);
-    const currentUser = getCurrentUser(state);
-    const userId = msg.data.user_id;
+    GlobalActions.emitRemoteUserTypingEvent(msg.broadcast.channel_id, msg.data.user_id, msg.data.parent_id);
 
-    const data = {
-        id: msg.broadcast.channel_id + msg.data.parent_id,
-        userId,
-        now: Date.now(),
-    };
-
-    dispatch({
-        type: WebsocketEvents.TYPING,
-        data,
-    }, getState);
-
-    setTimeout(() => {
-        dispatch({
-            type: WebsocketEvents.STOP_TYPING,
-            data,
-        }, getState);
-    }, parseInt(config.TimeBetweenUserTypingUpdatesMilliseconds, 10));
-
-    if (!currentUser && userId !== currentUserId) {
-        getProfilesByIds([userId])(dispatch, getState);
-    }
-
-    const status = getStatusForUserId(state, userId);
-    if (status !== General.ONLINE) {
-        getStatusesByIds([userId])(dispatch, getState);
+    if (msg.data.user_id !== UserStore.getCurrentId()) {
+        UserStore.setStatus(msg.data.user_id, UserStatuses.ONLINE);
     }
 }
 

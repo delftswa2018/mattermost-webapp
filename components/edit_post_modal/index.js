@@ -8,7 +8,6 @@ import {Preferences} from 'mattermost-redux/constants';
 import {getConfig} from 'mattermost-redux/selectors/entities/general';
 import {getBool} from 'mattermost-redux/selectors/entities/preferences';
 
-import {openModal} from 'actions/views/modals';
 import {hideEditPostModal} from 'actions/post_actions';
 import {editPost} from 'actions/views/edit_post_modal';
 import {getEditingPost} from 'selectors/posts';
@@ -29,7 +28,6 @@ function mapDispatchToProps(dispatch) {
             addMessageIntoHistory,
             editPost,
             hideEditPostModal,
-            openModal,
         }, dispatch),
     };
 }

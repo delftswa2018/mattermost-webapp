@@ -15,6 +15,8 @@ function mapStateToProps(state) {
 
     return {
         isLicensed: license.IsLicensed === 'true',
+        customBrand: license.CustomBrand === 'true',
+        enableCustomBrand: config.EnableCustomBrand === 'true',
         customDescriptionText: config.CustomDescriptionText,
         enableTeamCreation: config.EnableTeamCreation === 'true',
         siteName: config.SiteName,

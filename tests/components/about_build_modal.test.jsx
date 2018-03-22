@@ -49,8 +49,7 @@ describe('components/AboutBuildModal', () => {
 
     test('should match snapshot for enterprise edition', () => {
         const wrapper = shallowAboutBuildModal({config, license});
-        expect(wrapper.find('#versionString').text()).toBe('\u00a03.6.2');
-        expect(wrapper.find('#dbversionString').text()).toBe('\u00a03.6.0');
+        expect(wrapper.find('#versionString').text()).toBe('\u00a03.6.0 (3.6.2)');
         expect(wrapper).toMatchSnapshot();
     });
 
@@ -62,40 +61,35 @@ describe('components/AboutBuildModal', () => {
         };
 
         const wrapper = shallowAboutBuildModal({config: teamConfig, license: {}});
-        expect(wrapper.find('#versionString').text()).toBe('\u00a03.6.2');
-        expect(wrapper.find('#dbversionString').text()).toBe('\u00a03.6.0');
         expect(wrapper).toMatchSnapshot();
     });
 
-    test('should show dev if this is a dev build', () => {
+    test('should hide the build number if it is the same as the version number', () => {
         const sameBuildConfig = {
             ...config,
             BuildEnterpriseReady: 'false',
             BuildHashEnterprise: '',
             Version: '3.6.0',
-            BuildNumber: 'dev',
+            BuildNumber: '3.6.0',
         };
 
         const wrapper = shallowAboutBuildModal({config: sameBuildConfig, license: {}});
         expect(wrapper).toMatchSnapshot();
-        expect(wrapper.find('#versionString').text()).toBe('\u00a0dev');
-        expect(wrapper.find('#dbversionString').text()).toBe('\u00a03.6.0');
+        expect(wrapper.find('#versionString').text()).toBe('\u00a03.6.0');
     });
 
-    test('should show ci if a ci build', () => {
+    test('should show the build number if it is the different from the version number', () => {
         const differentBuildConfig = {
             ...config,
             BuildEnterpriseReady: 'false',
             BuildHashEnterprise: '',
             Version: '3.6.0',
-            BuildNumber: '123',
+            BuildNumber: '3.6.2',
         };
 
         const wrapper = shallowAboutBuildModal({config: differentBuildConfig, license: {}});
         expect(wrapper).toMatchSnapshot();
-        expect(wrapper.find('#versionString').text()).toBe('\u00a0ci');
-        expect(wrapper.find('#dbversionString').text()).toBe('\u00a03.6.0');
-        expect(wrapper.find('#buildnumberString').text()).toBe('\u00a0123');
+        expect(wrapper.find('#versionString').text()).toBe('\u00a03.6.0 (3.6.2)');
     });
 
     test('should call onModalDismissed callback when the modal is hidden', (done) => {

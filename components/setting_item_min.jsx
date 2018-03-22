@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import {FormattedMessage} from 'react-intl';
 
-import {isMobile} from 'utils/utils.jsx';
+import * as Utils from 'utils/utils.jsx';
 
 export default class SettingItemMin extends React.PureComponent {
     static defaultProps = {
@@ -71,11 +71,11 @@ export default class SettingItemMin extends React.PureComponent {
         let editButton = null;
         let describeSection = null;
 
-        if (!this.props.disableOpen && isMobile()) {
+        if (!this.props.disableOpen && Utils.isMobile()) {
             editButton = (
                 <li className='col-xs-12 col-sm-3 section-edit'>
                     <button
-                        id={this.props.section + 'Edit'}
+                        id={Utils.createSafeId(this.props.title) + 'Edit'}
                         className='color--link cursor--pointer style--none'
                         onClick={this.handleUpdateSection}
                         ref={this.getEdit}
@@ -89,7 +89,7 @@ export default class SettingItemMin extends React.PureComponent {
             editButton = (
                 <li className='col-xs-12 col-sm-3 section-edit'>
                     <button
-                        id={this.props.section + 'Edit'}
+                        id={Utils.createSafeId(this.props.title) + 'Edit'}
                         className='color--link cursor--pointer style--none text-left'
                         onClick={this.handleUpdateSection}
                         ref={this.getEdit}
@@ -105,7 +105,7 @@ export default class SettingItemMin extends React.PureComponent {
 
             describeSection = (
                 <li
-                    id={this.props.section + 'Desc'}
+                    id={Utils.createSafeId(this.props.title) + 'Desc'}
                     className='col-xs-12 section-describe'
                 >
                     {this.props.describe}
@@ -119,7 +119,7 @@ export default class SettingItemMin extends React.PureComponent {
                 onClick={this.handleUpdateSection}
             >
                 <li
-                    id={this.props.section + 'Title'}
+                    id={Utils.createSafeId(this.props.title) + 'Title'}
                     className='col-xs-12 col-sm-9 section-title'
                 >
                     {this.props.title}

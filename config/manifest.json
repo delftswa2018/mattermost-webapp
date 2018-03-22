@@ -1,6 +1,5 @@
 {
     "name": "Mattermost",
-    "short_name": "Mattermost",
     "description": "Mattermost is an open source, self-hosted Slack-alternative",
     "icons": [{
         "src": "/static/images/favicon/android-chrome-192x192.png",

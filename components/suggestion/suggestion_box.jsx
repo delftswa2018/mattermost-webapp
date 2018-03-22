@@ -94,11 +94,6 @@ export default class SuggestionBox extends React.Component {
          * If true, the suggestion box is disabled
          */
         disabled: PropTypes.bool,
-
-        /**
-         * If true, it displays allow to display a default list when empty
-         */
-        openWhenEmpty: PropTypes.bool,
     }
 
     static defaultProps = {
@@ -108,7 +103,6 @@ export default class SuggestionBox extends React.Component {
         isRHS: false,
         requiredCharacters: 1,
         openOnFocus: false,
-        openWhenEmpty: false,
     }
 
     constructor(props) {
@@ -190,12 +184,12 @@ export default class SuggestionBox extends React.Component {
     }
 
     handleFocus() {
-        if (this.props.openOnFocus || this.props.openWhenEmpty) {
+        if (this.props.openOnFocus) {
             setTimeout(() => {
                 const textbox = this.getTextbox();
                 if (textbox) {
                     const pretext = textbox.value.substring(0, textbox.selectionEnd);
-                    if (this.props.openWhenEmpty || pretext.length >= this.props.requiredCharacters) {
+                    if (pretext.length >= this.props.requiredCharacters) {
                         GlobalActions.emitSuggestionPretextChanged(this.suggestionId, pretext);
                     }
                 }
@@ -211,10 +205,7 @@ export default class SuggestionBox extends React.Component {
         const textbox = this.getTextbox();
         const pretext = textbox.value.substring(0, textbox.selectionEnd);
 
-        if (!this.composing &&
-            SuggestionStore.getPretext(this.suggestionId) !== pretext &&
-            (this.props.openWhenEmpty || pretext.length >= this.props.requiredCharacters)
-        ) {
+        if (!this.composing && SuggestionStore.getPretext(this.suggestionId) !== pretext && pretext.length >= this.props.requiredCharacters) {
             GlobalActions.emitSuggestionPretextChanged(this.suggestionId, pretext);
         }
 
@@ -330,7 +321,7 @@ export default class SuggestionBox extends React.Component {
     }
 
     handleKeyDown(e) {
-        if ((this.props.openWhenEmpty || this.props.value) && SuggestionStore.hasSuggestions(this.suggestionId)) {
+        if (this.props.value && SuggestionStore.hasSuggestions(this.suggestionId)) {
             if (Utils.isKeyPressed(e, KeyCodes.UP)) {
                 GlobalActions.emitSelectPreviousSuggestion(this.suggestionId);
                 e.preventDefault();
@@ -391,7 +382,6 @@ export default class SuggestionBox extends React.Component {
         Reflect.deleteProperty(props, 'popoverMentionKeyClick');
         Reflect.deleteProperty(props, 'requiredCharacters');
         Reflect.deleteProperty(props, 'openOnFocus');
-        Reflect.deleteProperty(props, 'openWhenEmpty');
 
         // This needs to be upper case so React doesn't think it's an html tag
         const SuggestionListComponent = listComponent;
@@ -410,7 +400,7 @@ export default class SuggestionBox extends React.Component {
                     onCompositionEnd={this.handleCompositionEnd}
                     onKeyDown={this.handleKeyDown}
                 />
-                {(this.props.openWhenEmpty || this.props.value.length >= this.props.requiredCharacters) &&
+                {this.props.value.length >= this.props.requiredCharacters &&
                     <SuggestionListComponent
                         suggestionId={this.suggestionId}
                         location={listStyle}

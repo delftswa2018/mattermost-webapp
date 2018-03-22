@@ -7,7 +7,7 @@ exports[`components/SettingItemMin should match snapshot 1`] = `
 >
   <li
     className="col-xs-12 col-sm-9 section-title"
-    id="sectionTitle"
+    id="titleTitle"
   >
     title
   </li>
@@ -16,7 +16,7 @@ exports[`components/SettingItemMin should match snapshot 1`] = `
   >
     <button
       className="color--link cursor--pointer style--none text-left"
-      id="sectionEdit"
+      id="titleEdit"
       onClick={[Function]}
     >
       <i
@@ -31,7 +31,7 @@ exports[`components/SettingItemMin should match snapshot 1`] = `
   </li>
   <li
     className="col-xs-12 section-describe"
-    id="sectionDesc"
+    id="titleDesc"
   >
     describe
   </li>
@@ -45,7 +45,7 @@ exports[`components/SettingItemMin should match snapshot, on disableOpen to true
 >
   <li
     className="col-xs-12 col-sm-9 section-title"
-    id="sectionTitle"
+    id="titleTitle"
   >
     title
   </li>

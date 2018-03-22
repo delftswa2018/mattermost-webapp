@@ -60,7 +60,6 @@ describe('component/sidebar/sidebar_channel/SidebarChannel', () => {
         townSquareDisplayName: 'Town Square',
         offTopicDisplayName: 'Off-Topic',
         membersCount: 8,
-        showUnreadForMsgs: true,
         actions: {
             savePreferences: jest.fn(),
             leaveChannel: jest.fn(),

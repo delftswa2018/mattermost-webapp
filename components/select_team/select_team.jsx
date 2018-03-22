@@ -12,19 +12,18 @@ import TeamStore from 'stores/team_store.jsx';
 import UserStore from 'stores/user_store.jsx';
 import * as UserAgent from 'utils/user_agent.jsx';
 import * as Utils from 'utils/utils.jsx';
-
 import logoImage from 'images/logo.png';
-
 import AnnouncementBar from 'components/announcement_bar';
 import BackButton from 'components/common/back_button.jsx';
 import LoadingScreen from 'components/loading_screen.jsx';
-import SiteNameAndDescription from 'components/common/site_name_and_description';
 
 import SelectTeamItem from './components/select_team_item.jsx';
 
 export default class SelectTeam extends React.Component {
     static propTypes = {
         isLicensed: PropTypes.bool.isRequired,
+        customBrand: PropTypes.bool.isRequired,
+        enableCustomBrand: PropTypes.bool.isRequired,
         customDescriptionText: PropTypes.string,
         enableTeamCreation: PropTypes.bool.isRequired,
         siteName: PropTypes.string,
@@ -98,13 +97,6 @@ export default class SelectTeam extends React.Component {
     }
 
     render() {
-        const {
-            customDescriptionText,
-            enableTeamCreation,
-            isLicensed,
-            siteName,
-        } = this.props;
-
         const isSystemAdmin = Utils.isSystemAdmin(UserStore.getCurrentUser().roles);
 
         let openContent;
@@ -144,7 +136,7 @@ export default class SelectTeam extends React.Component {
                 }
             }
 
-            if (openTeamContents.length === 0 && (enableTeamCreation || isSystemAdmin)) {
+            if (openTeamContents.length === 0 && (this.props.enableTeamCreation || isSystemAdmin)) {
                 openTeamContents = (
                     <div className='signup-team-dir-err'>
                         <div>
@@ -188,7 +180,7 @@ export default class SelectTeam extends React.Component {
         }
 
         let teamHelp = null;
-        if (isSystemAdmin && !enableTeamCreation) {
+        if (isSystemAdmin && !this.props.enableTeamCreation) {
             teamHelp = (
                 <FormattedMessage
                     id='login.createTeamAdminOnly'
@@ -198,7 +190,7 @@ export default class SelectTeam extends React.Component {
         }
 
         let teamSignUp;
-        if (isSystemAdmin || enableTeamCreation) {
+        if (isSystemAdmin || this.props.enableTeamCreation) {
             teamSignUp = (
                 <div className='margin--extra'>
                     <Link
@@ -234,6 +226,18 @@ export default class SelectTeam extends React.Component {
             );
         }
 
+        let description = null;
+        if (this.props.isLicensed && this.props.customBrand && this.props.enableCustomBrand) {
+            description = this.props.customDescriptionText;
+        } else {
+            description = (
+                <FormattedMessage
+                    id='web.root.signup_info'
+                    defaultMessage='All team communication in one place, searchable and accessible anywhere'
+                />
+            );
+        }
+
         let headerButton;
         if (this.state.error) {
             headerButton = <BackButton onClick={this.clearError}/>;
@@ -262,11 +266,10 @@ export default class SelectTeam extends React.Component {
                             className='signup-team-logo'
                             src={logoImage}
                         />
-                        <SiteNameAndDescription
-                            customDescriptionText={customDescriptionText}
-                            isLicensed={isLicensed}
-                            siteName={siteName}
-                        />
+                        <h1>{this.props.siteName}</h1>
+                        <h4 className='color--light'>
+                            {description}
+                        </h4>
                         {openContent}
                         {teamSignUp}
                         {adminConsoleLink}

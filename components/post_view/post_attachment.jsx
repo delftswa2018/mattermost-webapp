@@ -1,6 +1,7 @@
 // Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
 // See License.txt for license information.
 
+import $ from 'jquery';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -27,15 +28,46 @@ export default class PostAttachment extends React.PureComponent {
     constructor(props) {
         super(props);
 
-        this.state = {
-            collapsed: true,
+        this.handleActionButtonClick = this.handleActionButtonClick.bind(this);
+        this.getActionView = this.getActionView.bind(this);
+        this.getFieldsTable = this.getFieldsTable.bind(this);
+        this.getInitState = this.getInitState.bind(this);
+        this.shouldCollapse = this.shouldCollapse.bind(this);
+        this.toggleCollapseState = this.toggleCollapseState.bind(this);
+    }
+
+    componentDidMount() {
+        $(this.refs.attachment).on('click', '.attachment-link-more', this.toggleCollapseState);
+    }
+
+    componentWillUnmount() {
+        $(this.refs.attachment).off('click', '.attachment-link-more', this.toggleCollapseState);
+    }
+
+    componentWillMount() {
+        this.setState(this.getInitState());
+    }
+
+    getInitState() {
+        const shouldCollapse = this.shouldCollapse();
+        const text = TextFormatting.formatText(this.props.attachment.text || '');
+        const uncollapsedTextHTML = text + (shouldCollapse ? `<div><a class="attachment-link-more" href="#">${localizeMessage('post_attachment.collapse', 'Show less...')}</a></div>` : '');
+        const collapsedTextHTML = shouldCollapse ? this.getCollapsedTextHTML() : text;
+
+        return {
+            shouldCollapse,
+            collapsedTextHTML,
+            uncollapsedTextHTML,
+            textHTML: shouldCollapse ? collapsedTextHTML : uncollapsedTextHTML,
+            collapsed: shouldCollapse,
         };
     }
 
-    toggleCollapseState = (e) => {
+    toggleCollapseState(e) {
         e.preventDefault();
         this.setState((prevState) => {
             return {
+                textHTML: prevState.collapsed ? prevState.uncollapsedTextHTML : prevState.collapsedTextHTML,
                 collapsed: !prevState.collapsed,
             };
         });
@@ -47,8 +79,6 @@ export default class PostAttachment extends React.PureComponent {
     }
 
     getCollapsedTextHTML() {
-        // TODO: this breaks markdown formatting when it e.g. cuts a ``` block terminator
-        // Should be collapsed using another method.
         let text = this.props.attachment.text || '';
         if ((text.match(/\n/g) || []).length >= 5) {
             text = text.split('\n').splice(0, 5).join('\n');
@@ -57,7 +87,7 @@ export default class PostAttachment extends React.PureComponent {
             text = text.substr(0, 300);
         }
 
-        return TextFormatting.formatText(text);
+        return TextFormatting.formatText(text) + `<div><a class="attachment-link-more" href="#">${localizeMessage('post_attachment.more', 'Show more...')}</a></div>`;
     }
 
     getActionView() {
@@ -92,7 +122,7 @@ export default class PostAttachment extends React.PureComponent {
         );
     }
 
-    handleActionButtonClick = (e) => {
+    handleActionButtonClick(e) {
         e.preventDefault();
         const actionId = e.currentTarget.getAttribute('data-action-id');
         PostActions.doPostAction(this.props.postId, actionId);
@@ -267,25 +297,9 @@ export default class PostAttachment extends React.PureComponent {
 
         let text;
         if (data.text) {
-            const shouldCollapse = this.shouldCollapse();
-            const collapsed = shouldCollapse && this.state.collapsed;
-            const textHTML = collapsed ? this.getCollapsedTextHTML() : TextFormatting.formatText(this.props.attachment.text || '');
-            const collapseMessage = collapsed ? localizeMessage('post_attachment.more', 'Show more...') : localizeMessage('post_attachment.collapse', 'Show less...');
-
             text = (
                 <div className='attachment__text'>
-                    {messageHtmlToComponent(textHTML, false)}
-                    {shouldCollapse &&
-                        <div>
-                            <a
-                                className='attachment-link-more'
-                                href='#'
-                                onClick={this.toggleCollapseState}
-                            >
-                                {collapseMessage}
-                            </a>
-                        </div>
-                    }
+                    {messageHtmlToComponent(this.state.textHTML, false)}
                 </div>
             );
         }

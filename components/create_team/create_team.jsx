@@ -3,13 +3,14 @@
 
 import PropTypes from 'prop-types';
 import React from 'react';
+import {FormattedMessage} from 'react-intl';
 import {Route, Switch, Redirect} from 'react-router-dom';
 
 import AnnouncementBar from 'components/announcement_bar';
 import BackButton from 'components/common/back_button.jsx';
-import DisplayName from 'components/create_team/components/display_name';
-import SiteNameAndDescription from 'components/common/site_name_and_description';
+
 import TeamUrl from 'components/create_team/components/team_url';
+import DisplayName from 'components/create_team/components/display_name';
 
 export default class CreateTeam extends React.PureComponent {
     static propTypes = {
@@ -28,6 +29,16 @@ export default class CreateTeam extends React.PureComponent {
          * Boolean value that determines whether server has a valid Enterprise license
          */
         isLicensed: PropTypes.bool.isRequired,
+
+        /*
+         * Boolean value that determines whether license supports custom branding
+         */
+        customBrand: PropTypes.bool.isRequired,
+
+        /*
+         * Boolean value that determines whether the custom brand feature has been enabled
+         */
+        enableCustomBrand: PropTypes.bool.isRequired,
 
         /*
          * String containing the custom branding's text
@@ -55,20 +66,25 @@ export default class CreateTeam extends React.PureComponent {
     }
 
     render() {
-        const {
-            currentChannel,
-            currentTeam,
-            customDescriptionText,
-            isLicensed,
-            match,
-            siteName,
-        } = this.props;
+        let description = null;
+        if (this.props.isLicensed && this.props.customBrand && this.props.enableCustomBrand) {
+            description = this.props.customDescriptionText;
+        } else {
+            description = (
+                <FormattedMessage
+                    id='web.root.signup_info'
+                    defaultMessage='All team communication in one place, searchable and accessible anywhere'
+                />
+            );
+        }
 
         let url = '/select_team';
-        if (currentTeam) {
-            url = `/${currentTeam.name}`;
-            if (currentChannel) {
-                url += `/channels/${currentChannel.name}`;
+        const team = this.props.currentTeam;
+        const channel = this.props.currentChannel;
+        if (team) {
+            url = `/${team.name}`;
+            if (channel) {
+                url += `/channels/${channel.name}`;
             }
         }
 
@@ -78,11 +94,10 @@ export default class CreateTeam extends React.PureComponent {
                 <BackButton url={url}/>
                 <div className='col-sm-12'>
                     <div className='signup-team__container'>
-                        <SiteNameAndDescription
-                            customDescriptionText={customDescriptionText}
-                            isLicensed={isLicensed}
-                            siteName={siteName}
-                        />
+                        <h1>{this.props.siteName}</h1>
+                        <h4 className='color--light'>
+                            {description}
+                        </h4>
                         <div className='signup__content'>
                             <Switch>
                                 <Route
@@ -105,7 +120,7 @@ export default class CreateTeam extends React.PureComponent {
                                         />
                                 )}
                                 />
-                                <Redirect to={`${match.url}/display_name`}/>
+                                <Redirect to={`${this.props.match.url}/display_name`}/>
                             </Switch>
                         </div>
                     </div>

@@ -38,7 +38,6 @@ describe('components/dot_menu/DotMenu', () => {
             setEditingPost: jest.fn(),
             pinPost: jest.fn(),
             unpinPost: jest.fn(),
-            openModal: jest.fn(),
         },
     };
 

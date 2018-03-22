@@ -17,6 +17,8 @@ function mapStateToProps(state) {
     const siteName = config.SiteName;
     const termsOfServiceLink = config.TermsOfServiceLink;
     const privacyPolicyLink = config.PrivacyPolicyLink;
+    const customBrand = license.CustomBrand === 'true';
+    const enableCustomBrand = config.EnableCustomBrand === 'true';
     const customDescriptionText = config.CustomDescriptionText;
 
     return {
@@ -27,6 +29,8 @@ function mapStateToProps(state) {
         siteName,
         termsOfServiceLink,
         privacyPolicyLink,
+        customBrand,
+        enableCustomBrand,
         customDescriptionText,
     };
 }
