@@ -308,8 +308,6 @@ export default class CreateComment extends React.PureComponent {
                 this.handleSubmit(e);
             }
         }
-
-        GlobalActions.emitLocalUserTypingEvent(this.props.channelId, this.props.rootId);
     }
 
     scrollToBottom = () => {
@@ -328,6 +326,8 @@ export default class CreateComment extends React.PureComponent {
         this.setState({draft: updatedDraft});
 
         this.scrollToBottom();
+
+        GlobalActions.emitLocalUserTypingEvent(this.props.channelId, this.props.rootId);
     }
 
     handleKeyDown = (e) => {

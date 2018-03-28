@@ -426,8 +426,6 @@ export default class CreatePost extends React.Component {
                 this.handleSubmit(e);
             }
         }
-
-        GlobalActions.emitLocalUserTypingEvent(this.props.currentChannel.id, '');
     }
 
     handleChange = (e) => {
@@ -445,6 +443,8 @@ export default class CreatePost extends React.Component {
         };
 
         this.props.actions.setDraft(StoragePrefixes.DRAFT + channelId, draft);
+
+        GlobalActions.emitLocalUserTypingEvent(channelId, '');
     }
 
     handleFileUploadChange = () => {
